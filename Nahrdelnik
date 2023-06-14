@@ -1,0 +1,70 @@
+import tkinter as tk
+import random
+root=tk.Tk()
+WIDTH=600
+HEIGHT=600
+fin_x=WIDTH-20
+fin_y=HEIGHT-20
+id=0
+px,py=0,0
+status=True
+canvas=tk.Canvas(root,width=WIDTH,height=HEIGHT)
+canvas.pack()
+end=50
+obr=[tk.PhotoImage(file="images\koralik0.png"),tk.PhotoImage(file="images\koralik1.png"),tk.PhotoImage(file="images\koralik2.png"),tk.PhotoImage(file="images\koralik3.png")]
+
+def generuj():
+    for j in obr:
+        for i in range(10):
+            x=random.randint(30,WIDTH-100)
+            y=random.randint(30,HEIGHT-100)
+            canvas.create_image(x,y,image=j)
+
+def zisti(event):
+    global id, status
+    zoz=canvas.find_overlapping(event.x,event.y,event.x+1,event.y+1)
+    print(zoz)
+    if status:
+        if (len(zoz)>0):
+            id = zoz[-1]
+            posun1(id)
+            status=False
+
+def posun1(id):
+    global px,py
+    suradnice=canvas.coords(id)
+    str1=fin_x-suradnice[0]
+    str2=fin_y-suradnice[1]
+    if min(str1,str2)==0:
+        p=1
+    else:
+        p=float(max(str1,str2)//min(str1,str2))
+    if str1>str2:
+        px,py=p,1
+    else:
+        px,py=1,p
+    vzdialenost=((((str1)**2+(str2))**2)**(0.5))
+    if vzdialenost<15:
+        canvas.coords(id,fin_x,fin_y)
+        posun2()
+    else:
+        canvas.move(id,px,py)
+        canvas.after(10,posun1,id)
+
+def posun2():
+    global end,status
+    suradnice=canvas.coords(id)
+    x=suradnice[0]
+    print(suradnice)
+    if x>end:
+        x-=1
+        canvas.move(id,-1,0)
+        canvas.after(10,posun2)
+    else:
+        end=end+46
+        status=True
+
+
+generuj()
+canvas.bind_all("<Button-1>",zisti)
+root.mainloop()
